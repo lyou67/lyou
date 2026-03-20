@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="lyou">
+  <meta name="theme-color" content="#1e1e1e">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <title>lyou</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#1e1e1e; --bg2:#2a2a2a; --bg3:#333333; --bg4:#3d3d3d;
+      --border:rgba(255,255,255,0.09); --border2:rgba(255,255,255,0.15);
+      --text:#f2f2f2; --text2:rgba(242,242,242,0.55); --text3:rgba(242,242,242,0.3);
+      --accent:#00E5A0; --accent2:#00b87a; --accent-glow:rgba(0,229,160,0.15);
+      --red:#FF4D4D; --blue:#4D9EFF; --yellow:#FFC832;
+      --nav-h:80px; --top:env(safe-area-inset-top); --bottom:env(safe-area-inset-bottom);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    .page{display:none;flex-direction:column;min-height:100vh;padding-top:calc(var(--top) + 16px);padding-bottom:calc(var(--nav-h) + var(--bottom) + 20px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .page.active{display:flex;animation:fadeUp .28s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .scroll-content{padding:0 16px;flex:1}
+
+    /* NAV */
+    .nav-bar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--nav-h) + var(--bottom));padding-bottom:var(--bottom);background:rgba(30,30,30,0.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:0.5px solid var(--border2);display:flex;align-items:flex-start;padding-top:10px;z-index:100}
+    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 0;color:var(--text3);font-size:10px;font-weight:500;letter-spacing:.03em;transition:color .2s}
+    .nav-item.active{color:var(--accent)}
+    .nav-icon{font-size:22px;line-height:1}
+    .nav-item.active .nav-icon{filter:drop-shadow(0 0 5px var(--accent))}
+
+    /* LOGO */
+    .logo-header{padding:8px 16px 24px;display:flex;align-items:center;justify-content:space-between}
+    .logo-wrap{display:flex;align-items:center;gap:10px}
+    .logo-icon{width:36px;height:36px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:300;color:#000;letter-spacing:.5px;box-shadow:0 0 20px var(--accent-glow)}
+    .logo-text{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.05em}
+    .logo-date{font-size:11px;color:var(--text3)}
+
+    /* PAGE HEADER */
+    .page-header{padding:0 16px 20px}
+    .page-title{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:.02em;line-height:1}
+    .page-subtitle{font-size:13px;color:var(--text2);margin-top:2px}
+
+    /* CARDS */
+    .card{background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:20px;margin-bottom:12px}
+    .card-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
+
+    /* HERO */
+    .hero-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:24px;padding:28px 24px;margin-bottom:12px;position:relative;overflow:hidden}
+    .hero-card::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);pointer-events:none}
+    .hero-days{font-family:'Bebas Neue',sans-serif;font-size:88px;line-height:1;letter-spacing:.02em}
+    .hero-days span{color:var(--accent)}
+    .hero-sub{font-size:13px;color:var(--text2);margin-top:2px;margin-bottom:20px}
+    .prog-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:8px}
+    .prog-row .current{color:var(--accent);font-weight:600}
+    .prog-track{background:var(--bg4);border-radius:99px;height:4px;overflow:hidden}
+    .prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .6s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px var(--accent-glow)}
+    .prog-pct{text-align:right;font-size:11px;color:var(--text3);margin-top:6px}
+
+    /* RYTHME BADGE */
+    .rythme-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:99px;font-size:12px;font-weight:600;margin-top:10px}
+    .rythme-ok{background:rgba(0,229,160,0.1);color:var(--accent);border:0.5px solid rgba(0,229,160,0.3)}
+    .rythme-slow{background:rgba(255,200,50,0.1);color:var(--yellow);border:0.5px solid rgba(255,200,50,0.3)}
+    .rythme-warn{background:rgba(255,77,77,0.1);color:var(--red);border:0.5px solid rgba(255,77,77,0.3)}
+
+    /* METRICS */
+    .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .metric-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:18px;padding:16px}
+    .metric-card .m-label{font-size:11px;color:var(--text3);font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+    .metric-card .m-val{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;letter-spacing:.02em}
+    .metric-card .m-unit{font-size:12px;color:var(--text2);margin-top:2px}
+    .metric-card.accent-card{background:linear-gradient(135deg,#1a3328,#1e2e28);border-color:rgba(0,229,160,0.2)}
+    .metric-card.accent-card .m-val{color:var(--accent)}
+    .imc-rouge{color:var(--red)!important}
+    .imc-bleu{color:var(--blue)!important}
+    .imc-vert{color:var(--accent)!important}
+
+    /* PHASE */
+    .phase-card{background:var(--bg2);border:0.5px solid var(--border2);border-radius:20px;padding:20px;margin-bottom:12px}
+    .phase-tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:var(--accent-glow);border:0.5px solid rgba(0,229,160,0.3);padding:4px 10px;border-radius:99px;margin-bottom:10px}
+    .phase-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.03em;margin-bottom:6px}
+    .phase-desc{font-size:13px;color:var(--text2);line-height:1.5}
+
+    /* PLANNING */
+    .planning-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:0.5px solid var(--border)}
+    .planning-row:last-child{border:none}
+    .planning-day{font-size:14px;font-weight:500;color:var(--text2);display:flex;align-items:center}
+    .planning-day.today{color:var(--text);font-weight:600}
+    .today-dot{width:6px;height:6px;border-radius:99px;background:var(--accent);display:inline-block;margin-right:7px;box-shadow:0 0 6px var(--accent);flex-shrink:0}
+    .planning-badge{font-size:11px;font-weight:600;padding:4px 12px;border-radius:99px;letter-spacing:.03em}
+    .badge-salle{background:rgba(77,158,255,0.15);color:var(--blue)}
+    .badge-priorite{background:rgba(0,229,160,0.12);color:var(--accent);border:0.5px solid rgba(0,229,160,0.25)}
+    .badge-foot{background:rgba(255,200,50,0.12);color:var(--yellow)}
+    .badge-repos{background:var(--bg3);color:var(--text3)}
+
+    /* POIDS */
+    .input-row{display:flex;gap:10px;margin-bottom:12px}
+    .weight-input{flex:1;background:var(--bg3);border:0.5px solid var(--border2);border-radius:14px;padding:16px 18px;font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--text);outline:none;letter-spacing:.05em}
+    .weight-input::placeholder{color:var(--text3)}
+    .weight-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+    .btn-add{background:var(--accent);border:none;border-radius:14px;padding:0 22px;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#000;cursor:pointer;letter-spacing:.05em;transition:all .15s;box-shadow:0 4px 20px var(--accent-glow)}
+    .btn-add:active{transform:scale(.96)}
+    .log-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:0.5px solid var(--border)}
+    .log-item:last-child{border:none}
+    .log-date{font-size:13px;color:var(--text3)}
+    .log-kg{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.03em}
+    .log-delta{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px}
+    .delta-up{background:rgba(0,229,160,0.12);color:var(--accent)}
+    .delta-down{background:rgba(255,77,77,0.12);color:var(--red)}
+    .btn-danger{width:100%;padding:14px;background:transparent;border:0.5px solid rgba(255,77,77,0.3);border-radius:14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--red);cursor:pointer;margin-top:8px;transition:background .15s}
+    .btn-danger:active{background:rgba(255,77,77,0.08)}
+
+    /* PHOTOS */
+    .photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .photo-slot{background:var(--bg3);border:0.5px dashed var(--border2);border-radius:16px;aspect-ratio:3/4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;position:relative;overflow:hidden}
+    .photo-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .photo-slot .slot-label{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.08em}
+    .photo-slot .slot-plus{font-size:26px;color:var(--text3);line-height:1}
+    .photo-slot .slot-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.7));padding:10px}
+    .photo-slot .slot-week{font-size:12px;font-weight:700;color:#fff}
+    .del-btn{position:absolute;top:8px;right:8px;background:rgba(255,77,77,0.85);color:#fff;border:none;border-radius:99px;font-size:11px;padding:3px 8px;cursor:pointer;z-index:2}
+
+    /* GRAPHIQUE */
+    .chart-wrap{position:relative;width:100%;height:180px;margin-top:4px}
+    canvas{width:100%!important}
+
+    /* EMPTY STATE */
+    .empty-state{text-align:center;padding:32px 16px}
+    .empty-icon{font-size:40px;margin-bottom:12px}
+    .empty-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.03em;margin-bottom:6px}
+    .empty-sub{font-size:13px;color:var(--text3);line-height:1.5}
+    .empty-cta{display:inline-block;margin-top:16px;background:var(--accent);color:#000;font-size:13px;font-weight:700;padding:10px 22px;border-radius:99px;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;box-shadow:0 4px 16px var(--accent-glow)}
+
+    /* PROGRAMME */
+    .seance-item{margin-bottom:10px;border-radius:18px;overflow:hidden;border:0.5px solid var(--border)}
+    .seance-head{background:var(--bg2);padding:16px 18px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+    .seance-head-left{display:flex;flex-direction:column;gap:3px}
+    .seance-day{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.08em}
+    .seance-name{font-size:15px;font-weight:600}
+    .seance-chevron{color:var(--text3);font-size:18px;transition:transform .25s}
+    .seance-item.open .seance-chevron{transform:rotate(180deg)}
+    .seance-body{display:none;background:var(--bg3);padding:0 18px}
+    .seance-item.open .seance-body{display:block}
+    .seance-note{font-size:12px;color:var(--text3);padding:12px 0 8px;border-bottom:0.5px solid var(--border);margin-bottom:4px}
+    .exo-header-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:6px;padding:8px 0}
+    .exo-header-row span{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;text-align:center}
+    .exo-header-row span:first-child{text-align:left}
+    .exo-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:6px;padding:10px 0;border-bottom:0.5px solid var(--border);align-items:center}
+    .exo-row:last-child{border:none;margin-bottom:6px}
+    .exo-name{font-size:13px;font-weight:500}
+    .exo-val{font-size:13px;color:var(--text2);text-align:center}
+    .abs-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;padding:10px 0 4px}
+
+    /* TIMER DE REPOS */
+    .timer-btn{display:inline-flex;align-items:center;gap:5px;background:var(--bg4);border:0.5px solid var(--border2);border-radius:99px;padding:3px 10px;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;white-space:nowrap}
+    .timer-btn:active{background:var(--accent);color:#000;border-color:var(--accent)}
+    .timer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:400;display:none;align-items:center;justify-content:center}
+    .timer-overlay.open{display:flex}
+    .timer-box{background:var(--bg2);border-radius:28px;padding:36px 32px;text-align:center;width:calc(100% - 48px);max-width:320px;border:0.5px solid var(--border2)}
+    .timer-circle{width:160px;height:160px;border-radius:50%;border:4px solid var(--bg4);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;position:relative}
+    .timer-circle svg{position:absolute;inset:0;transform:rotate(-90deg)}
+    .timer-circle circle{transition:stroke-dashoffset .9s linear}
+    .timer-num{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:.02em;color:var(--text)}
+    .timer-label{font-size:13px;color:var(--text2);margin-bottom:24px}
+    .timer-actions{display:flex;gap:10px}
+    .timer-btn-big{flex:1;padding:14px;border-radius:14px;border:none;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.05em;cursor:pointer}
+    .timer-start{background:var(--accent);color:#000}
+    .timer-cancel{background:var(--bg3);color:var(--text2)}
+
+    /* NUTRITION TRACKER */
+    .check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .check-item{background:var(--bg3);border:0.5px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:all .15s}
+    .check-item.done{background:linear-gradient(135deg,#1a3328,#1e2e28);border-color:rgba(0,229,160,0.3)}
+    .check-item .ci-label{font-size:12px;color:var(--text2);font-weight:500;line-height:1.3}
+    .check-item .ci-check{width:22px;height:22px;border-radius:99px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s}
+    .check-item.done .ci-check{background:var(--accent);border-color:var(--accent);color:#000}
+    .check-item .ci-top{display:flex;justify-content:space-between;align-items:flex-start}
+    .streak-row{display:flex;align-items:center;gap:10px}
+    .streak-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--accent)}
+    .streak-label{font-size:12px;color:var(--text2)}
+
+    /* MACRO */
+    .macro-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .macro-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:18px;padding:16px}
+    .macro-card .m-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:6px}
+    .macro-card .m-val{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1}
+    .macro-card .m-unit{font-size:11px;color:var(--text2);margin-top:2px}
+    .macro-card.kcal{background:linear-gradient(135deg,#2a2000,#1e1800);border-color:rgba(255,200,50,0.2)}
+    .macro-card.kcal .m-val{color:var(--yellow)}
+    .macro-card.prot{background:linear-gradient(135deg,#1a3328,#1e2e28);border-color:rgba(0,229,160,0.2)}
+    .macro-card.prot .m-val{color:var(--accent)}
+    .meal-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:0.5px solid var(--border)}
+    .meal-row:last-child{border:none}
+    .meal-time{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.05em;margin-bottom:2px}
+    .meal-name{font-size:14px;font-weight:500}
+    .meal-kcal{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text2);letter-spacing:.03em}
+    .pill{font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px}
+    .pill-green{background:rgba(0,229,160,0.12);color:var(--accent)}
+    .pill-amber{background:rgba(255,200,50,0.12);color:var(--yellow)}
+    .suppl-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:0.5px solid var(--border)}
+    .suppl-row:last-child{border:none}
+
+    /* RÈGLES */
+    .rule-row{display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:0.5px solid var(--border)}
+    .rule-row:last-child{border:none}
+    .rule-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text3);min-width:24px;line-height:1.3}
+    .rule-text{font-size:14px;color:var(--text2);line-height:1.5}
+    .alert-row{display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:0.5px solid var(--border)}
+    .alert-row:last-child{border:none}
+    .alert-icon{font-size:16px;min-width:24px}
+    .alert-text{font-size:14px;color:var(--text2);line-height:1.5}
+
+    /* MODAL COIFFE */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:300;display:none;align-items:flex-end}
+    .modal-overlay.open{display:flex}
+    .modal-sheet{background:var(--bg2);border-radius:24px 24px 0 0;padding:24px 20px calc(24px + var(--bottom));width:100%;max-height:80vh;overflow-y:auto;animation:slideUp .3s ease}
+    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .modal-handle{width:36px;height:4px;background:var(--bg4);border-radius:99px;margin:0 auto 20px}
+    .modal-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.03em;margin-bottom:4px}
+    .modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.4}
+    .coiffe-exo{padding:12px 0;border-bottom:0.5px solid var(--border)}
+    .coiffe-exo:last-child{border:none}
+    .coiffe-exo-name{font-size:14px;font-weight:600;margin-bottom:4px}
+    .coiffe-exo-detail{font-size:12px;color:var(--text2);line-height:1.5}
+    .modal-close{width:100%;margin-top:20px;padding:14px;background:var(--bg3);border:none;border-radius:14px;color:var(--text2);font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer}
+
+    /* VOLUME SEMAINE */
+    .vol-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;background:rgba(77,158,255,0.12);color:var(--blue);margin-left:6px}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:calc(var(--nav-h) + var(--bottom) + 16px);left:50%;transform:translateX(-50%);background:var(--accent);color:#000;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;transition:opacity .25s;pointer-events:none;z-index:500;white-space:nowrap;box-shadow:0 4px 24px var(--accent-glow)}
+    .toast.show{opacity:1}
+    input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+
+    /* SÉANCE DU JOUR HERO */
+    .today-seance{background:linear-gradient(135deg,#0d2e22,#162820);border:0.5px solid rgba(0,229,160,0.25);border-radius:20px;padding:18px 20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+    .today-seance-left{}
+    .today-seance-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;opacity:.7}
+    .today-seance-name{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.03em;line-height:1}
+    .today-seance-sub{font-size:12px;color:var(--text2);margin-top:4px}
+    .today-seance-arrow{font-size:28px;color:var(--accent);opacity:.6}
+    .repos-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:18px 20px;margin-bottom:12px;display:flex;align-items:center;gap:14px}
+    .repos-emoji{font-size:28px}
+    .repos-text{font-size:14px;color:var(--text2);line-height:1.4}
+
+    /* BADGE POIDS NON LOGGÉ */
+    .poids-alert{display:flex;align-items:center;gap:8px;background:rgba(255,200,50,0.08);border:0.5px solid rgba(255,200,50,0.25);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--yellow);cursor:pointer}
+    .poids-alert-dot{width:8px;height:8px;border-radius:99px;background:var(--yellow);flex-shrink:0;animation:pulse 1.5s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+    /* EXPORT */
+    .btn-export{width:100%;padding:14px;background:transparent;border:0.5px solid var(--border2);border-radius:14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
+    .btn-export:active{background:var(--bg3)}
+
+    /* CHARGES */
+    .charge-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+    .charge-row:last-child{border:none}
+    .charge-exo{font-size:13px;font-weight:500;flex:1}
+    .charge-input{width:72px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:7px 10px;font-size:14px;color:var(--text);text-align:center;outline:none;font-family:'DM Sans',sans-serif}
+    .charge-input:focus{border-color:var(--accent)}
+    .charge-unit{font-size:11px;color:var(--text3);min-width:20px}
+    .charge-prev{font-size:11px;color:var(--text3);min-width:48px;text-align:right}
+  </style>
+</head>
+<body>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="page-dashboard" class="page active">
+  <div class="logo-header">
+    <div class="logo-wrap">
+      <div class="logo-icon">lyou</div>
+      <div>
+        <div class="logo-text">lyou</div>
+        <div class="logo-date">20 mars → 5 août 2026</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text3)" id="dash-week-label">S1 / S19</div>
+  </div>
+  <div class="scroll-content">
+
+    <!-- SÉANCE DU JOUR -->
+    <div id="today-seance-card"></div>
+
+    <!-- ALERTE POIDS -->
+    <div id="poids-alert-card"></div>
+
+    <div class="hero-card">
+      <div class="card-label">Objectif</div>
+      <div class="hero-days"><span id="countdown-days">--</span></div>
+      <div class="hero-sub">jours restants avant le 5 août</div>
+      <div class="prog-row"><span>54 kg</span><span class="current" id="current-display">-- kg</span><span>63 kg</span></div>
+      <div class="prog-track"><div class="prog-fill" id="main-progress" style="width:0%"></div></div>
+      <div class="prog-pct" id="progress-pct">Enregistre ton premier poids</div>
+      <div id="rythme-badge"></div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div class="card" id="empty-state" style="display:none">
+      <div class="empty-state">
+        <div class="empty-icon">⚖️</div>
+        <div class="empty-title">Lance-toi maintenant</div>
+        <div class="empty-sub">Enregistre ton premier poids.<br>Tout commence ici.</div>
+        <button class="empty-cta" onclick="showPage('poids',document.querySelectorAll('.nav-item')[1])">Logger mon poids →</button>
+      </div>
+    </div>
+
+    <div class="metric-grid" id="metric-grid">
+      <div class="metric-card">
+        <div class="m-label">Poids actuel</div>
+        <div class="m-val" id="dash-poids">--</div>
+        <div class="m-unit">kilogrammes</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">Reste à prendre</div>
+        <div class="m-val" id="dash-reste">--</div>
+        <div class="m-unit">kilogrammes</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">Rythme cible</div>
+        <div class="m-val">0.47</div>
+        <div class="m-unit">kg / semaine</div>
+      </div>
+      <div class="metric-card accent-card">
+        <div class="m-label">IMC</div>
+        <div class="m-val" id="dash-imc">--</div>
+        <div class="m-unit" id="dash-imc-label">--</div>
+      </div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-tag" id="phase-tag">Phase 1</div>
+      <div class="phase-name" id="phase-name">Fondation</div>
+      <div class="phase-desc" id="phase-desc">Réhabilitation épaule, activation jambes, technique pure. Pas de charges lourdes.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Planning semaine</div>
+      <div id="planning-semaine"></div>
+    </div>
+
+    <div class="card" id="graph-card" style="display:none">
+      <div class="card-label">Courbe de progression</div>
+      <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ POIDS ══ -->
+<div id="page-poids" class="page">
+  <div class="page-header">
+    <div class="page-title">Poids</div>
+    <div class="page-subtitle">54 kg → 63 kg</div>
+  </div>
+  <div class="scroll-content">
+    <div class="card">
+      <div class="card-label">Enregistrer</div>
+      <div class="input-row">
+        <input type="number" class="weight-input" id="poids-input" placeholder="54.0" step="0.1" min="50" max="80">
+        <button class="btn-add" onclick="logPoids()">+&nbsp;ADD</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Historique</div>
+      <div id="weight-log"><div style="color:var(--text3);font-size:14px;text-align:center;padding:20px 0">Aucune entrée encore</div></div>
+      <button class="btn-export" onclick="exportData()">📤 Exporter mes données (JSON)</button>
+      <button class="btn-danger" onclick="clearWeights()">Réinitialiser l'historique</button>
+    </div>
+    <div class="card">
+      <div class="card-label">Photos progression — chaque vendredi</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px">Même lumière, même angle, même pose.</div>
+      <div class="photo-grid" id="photo-grid"></div>
+      <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROGRAMME ══ -->
+<div id="page-programme" class="page">
+  <div class="page-header">
+    <div class="page-title">Programme</div>
+    <div class="page-subtitle" id="prog-phase-label">Phase 1 — Fondation</div>
+  </div>
+  <div class="scroll-content">
+
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-label">Volume cette semaine</div>
+      <div id="vol-info" style="font-size:13px;color:var(--text2);line-height:1.6"></div>
+    </div>
+
+    <!-- CHARGES DU JOUR -->
+    <div class="card" style="margin-bottom:12px" id="charge-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div class="card-label" style="margin-bottom:0" id="charge-title">Charges du jour</div>
+        <button onclick="exportCharges()" style="font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif">📤 Export</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:14px" id="charge-subtitle"></div>
+      <div id="charge-list"></div>
+    </div>
+
+    <!-- LUNDI -->
+    <div class="seance-item" onclick="toggleSeance(this)">
+      <div class="seance-head">
+        <div class="seance-head-left"><div class="seance-day">Lundi</div><div class="seance-name">Dos + Biceps</div></div>
+        <span class="seance-chevron">⌄</span>
+      </div>
+      <div class="seance-body">
+        <div class="seance-note">Lendemain de match — jambes interdites</div>
+        <div class="exo-header-row"><span>Exercice</span><span>Séries</span><span>Reps</span><span>Repos</span></div>
+        <div class="exo-row" onclick="openCoiffe(false);event.stopPropagation()" style="cursor:pointer"><span class="exo-name">Protocole coiffe <span style="font-size:10px;color:var(--accent)">↗</span></span><span class="exo-val">—</span><span class="exo-val">—</span><span class="exo-val">1er</span></div>
+        <div class="exo-row"><span class="exo-name">Traction pronation</span><span class="exo-val" id="v-lundi-1">4</span><span class="exo-val">8–10</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(120);event.stopPropagation()">⏱ 120s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Tirage horizontal câble</span><span class="exo-val" id="v-lundi-2">3</span><span class="exo-val">12</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(75);event.stopPropagation()">⏱ 75s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Pull-over haltère</span><span class="exo-val" id="v-lundi-3">3</span><span class="exo-val">12</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Curl barre droite</span><span class="exo-val" id="v-lundi-4">3</span><span class="exo-val">10</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Curl incliné haltères</span><span class="exo-val" id="v-lundi-5">3</span><span class="exo-val">12</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="abs-title">Module Abdos B</div>
+        <div class="exo-row"><span class="exo-name">Crunch classique</span><span class="exo-val">3</span><span class="exo-val">20</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(45);event.stopPropagation()">⏱ 45s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Relevé de buste incliné</span><span class="exo-val">3</span><span class="exo-val">15</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(45);event.stopPropagation()">⏱ 45s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Crunch poulie haute</span><span class="exo-val">3</span><span class="exo-val">15</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(45);event.stopPropagation()">⏱ 45s</button></span></div>
+      </div>
+    </div>
+
+    <!-- MARDI -->
+    <div class="seance-item" onclick="toggleSeance(this)">
+      <div class="seance-head">
+        <div class="seance-head-left"><div class="seance-day" style="color:var(--accent)">Mardi · Priorité</div><div class="seance-name">Épaules + Triceps</div></div>
+        <span class="seance-chevron">⌄</span>
+      </div>
+      <div class="seance-body">
+        <div class="seance-note">Séance la plus importante — jamais sautée</div>
+        <div class="exo-header-row"><span>Exercice</span><span>Séries</span><span>Reps</span><span>Repos</span></div>
+        <div class="exo-row" onclick="openCoiffe(true);event.stopPropagation()" style="cursor:pointer"><span class="exo-name">Protocole coiffe complet <span style="font-size:10px;color:var(--accent)">↗</span></span><span class="exo-val">—</span><span class="exo-val">—</span><span class="exo-val">1er</span></div>
+        <div class="exo-row"><span class="exo-name">Élév. latérale câble bilat.</span><span class="exo-val" id="v-mardi-1">4</span><span class="exo-val">15</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Élév. latérale haltère unilat.</span><span class="exo-val" id="v-mardi-2">3</span><span class="exo-val">12/c</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Élév. frontale alterné</span><span class="exo-val" id="v-mardi-3">3</span><span class="exo-val">12</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Reverse fly câble</span><span class="exo-val" id="v-mardi-4">3</span><span class="exo-val">15</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Dips poids de corps</span><span class="exo-val" id="v-mardi-5">3</span><span class="exo-val">10–12</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(90);event.stopPropagation()">⏱ 90s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Pushdown câble corde</span><span class="exo-val" id="v-mardi-6">3</span><span class="exo-val">12</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Extension couché EZ</span><span class="exo-val" id="v-mardi-7">3</span><span class="exo-val">10</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(75);event.stopPropagation()">⏱ 75s</button></span></div>
+      </div>
+    </div>
+
+    <!-- MERCREDI -->
+    <div class="seance-item" onclick="toggleSeance(this)">
+      <div class="seance-head">
+        <div class="seance-head-left"><div class="seance-day">Mercredi</div><div class="seance-name">Five — Football</div></div>
+        <span class="seance-chevron">⌄</span>
+      </div>
+      <div class="seance-body">
+        <div class="seance-note" style="border:none;padding-bottom:14px">1h–1h30 de five. Compté comme séance jambes légère. Serious Mass avant et après.</div>
+      </div>
+    </div>
+
+    <!-- JEUDI -->
+    <div class="seance-item" onclick="toggleSeance(this)">
+      <div class="seance-head">
+        <div class="seance-head-left"><div class="seance-day">Jeudi</div><div class="seance-name">Jambes Quad</div></div>
+        <span class="seance-chevron">⌄</span>
+      </div>
+      <div class="seance-body">
+        <div class="exo-header-row"><span>Exercice</span><span>Séries</span><span>Reps</span><span>Repos</span></div>
+        <div class="exo-row" onclick="openCoiffe(true);event.stopPropagation()" style="cursor:pointer"><span class="exo-name">Protocole coiffe complet <span style="font-size:10px;color:var(--accent)">↗</span></span><span class="exo-val">—</span><span class="exo-val">—</span><span class="exo-val">1er</span></div>
+        <div class="exo-row"><span class="exo-name">Goblet Squat haltère</span><span class="exo-val" id="v-jeudi-1">4</span><span class="exo-val">12</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(90);event.stopPropagation()">⏱ 90s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Presse à cuisses 45°</span><span class="exo-val" id="v-jeudi-2">4</span><span class="exo-val">12</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(90);event.stopPropagation()">⏱ 90s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Leg Extension</span><span class="exo-val" id="v-jeudi-3">3</span><span class="exo-val">15</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Fentes marchées haltères</span><span class="exo-val" id="v-jeudi-4">3</span><span class="exo-val">10/j</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(75);event.stopPropagation()">⏱ 75s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Élév. mollets debout</span><span class="exo-val">2</span><span class="exo-val">15</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(45);event.stopPropagation()">⏱ 45s</button></span></div>
+        <div class="abs-title">Module Abdos A</div>
+        <div class="exo-row"><span class="exo-name">Planche isométrique</span><span class="exo-val">3</span><span class="exo-val">45s</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(30);event.stopPropagation()">⏱ 30s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Planche latérale</span><span class="exo-val">3</span><span class="exo-val">30s/c</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(30);event.stopPropagation()">⏱ 30s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Hollow body hold</span><span class="exo-val">3</span><span class="exo-val">30s</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(30);event.stopPropagation()">⏱ 30s</button></span></div>
+      </div>
+    </div>
+
+    <!-- VENDREDI -->
+    <div class="seance-item" onclick="toggleSeance(this)">
+      <div class="seance-head">
+        <div class="seance-head-left"><div class="seance-day" style="color:var(--accent)">Vendredi · Priorité</div><div class="seance-name">Épaules + Triceps</div></div>
+        <span class="seance-chevron">⌄</span>
+      </div>
+      <div class="seance-body">
+        <div class="seance-note">Focus épaules — 2ème séance de la semaine</div>
+        <div class="exo-header-row"><span>Exercice</span><span>Séries</span><span>Reps</span><span>Repos</span></div>
+        <div class="exo-row" onclick="openCoiffe(true);event.stopPropagation()" style="cursor:pointer"><span class="exo-name">Protocole coiffe complet <span style="font-size:10px;color:var(--accent)">↗</span></span><span class="exo-val">—</span><span class="exo-val">—</span><span class="exo-val">1er</span></div>
+        <div class="exo-row"><span class="exo-name">Élév. latérale câble bilat.</span><span class="exo-val" id="v-ven-1">4</span><span class="exo-val">15</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Élév. latérale haltère unilat.</span><span class="exo-val" id="v-ven-2">3</span><span class="exo-val">12/c</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Reverse fly câble</span><span class="exo-val" id="v-ven-3">3</span><span class="exo-val">15</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Face pull corde</span><span class="exo-val" id="v-ven-4">3</span><span class="exo-val">15</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Pushdown câble corde</span><span class="exo-val" id="v-ven-5">3</span><span class="exo-val">12</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Extension couché EZ</span><span class="exo-val" id="v-ven-6">3</span><span class="exo-val">10</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(75);event.stopPropagation()">⏱ 75s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Dips poids de corps</span><span class="exo-val" id="v-ven-7">3</span><span class="exo-val">10–12</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(90);event.stopPropagation()">⏱ 90s</button></span></div>
+        <div class="abs-title">Module Abdos C</div>
+        <div class="exo-row"><span class="exo-name">Russian twist lesté</span><span class="exo-val">3</span><span class="exo-val">20</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(45);event.stopPropagation()">⏱ 45s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Crunch oblique alterné</span><span class="exo-val">3</span><span class="exo-val">15/c</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(45);event.stopPropagation()">⏱ 45s</button></span></div>
+        <div class="exo-row"><span class="exo-name">Relevé de jambes suspendu</span><span class="exo-val">3</span><span class="exo-val">12</span><span class="exo-val"><button class="timer-btn" onclick="startTimer(60);event.stopPropagation()">⏱ 60s</button></span></div>
+      </div>
+    </div>
+
+    <!-- SAMEDI -->
+    <div class="seance-item" onclick="toggleSeance(this)">
+      <div class="seance-head">
+        <div class="seance-head-left"><div class="seance-day">Samedi</div><div class="seance-name">Repos absolu</div></div>
+        <span class="seance-chevron">⌄</span>
+      </div>
+      <div class="seance-body">
+        <div class="seance-note" style="border:none;padding-bottom:14px">Veille de match 9h. Coucher avant minuit. Prépare ta tenue et ton repas du lendemain.</div>
+      </div>
+    </div>
+
+    <!-- DIMANCHE -->
+    <div class="seance-item" onclick="toggleSeance(this)">
+      <div class="seance-head">
+        <div class="seance-head-left"><div class="seance-day">Dimanche</div><div class="seance-name">Match 9h00</div></div>
+        <span class="seance-chevron">⌄</span>
+      </div>
+      <div class="seance-body">
+        <div class="seance-note" style="border:none;padding-bottom:14px">Lever 7h00. Repas 7h15 (flocons + banane + lait). Match 9h. Serious Mass dose complète après le match.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ NUTRITION ══ -->
+<div id="page-nutrition" class="page">
+  <div class="page-header">
+    <div class="page-title">Nutrition</div>
+    <div class="page-subtitle">2970 kcal · 140g protéines</div>
+  </div>
+  <div class="scroll-content">
+
+    <div class="card">
+      <div class="card-label" style="margin-bottom:6px">Checklist du jour</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:14px" id="nutrition-date"></div>
+      <div class="check-grid" id="check-grid"></div>
+      <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
+        <div class="streak-row">
+          <div class="streak-num" id="streak-num">0</div>
+          <div class="streak-label">jours consécutifs<br>tout coché 🔥</div>
+        </div>
+        <button onclick="resetChecks()" style="font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif">Reset</button>
+      </div>
+    </div>
+
+    <div class="macro-grid">
+      <div class="macro-card kcal"><div class="m-label">Calories</div><div class="m-val">2970</div><div class="m-unit">kcal / jour</div></div>
+      <div class="macro-card prot"><div class="m-label">Protéines</div><div class="m-val">140</div><div class="m-unit">g / jour</div></div>
+      <div class="macro-card"><div class="m-label">Glucides</div><div class="m-val">416</div><div class="m-unit">g / jour</div></div>
+      <div class="macro-card"><div class="m-label">Lipides</div><div class="m-val">83</div><div class="m-unit">g / jour</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Planning repas</div>
+      <div class="meal-row"><div><div class="meal-time">10h00</div><div class="meal-name">Réveil</div></div><div class="meal-kcal">~580 kcal</div></div>
+      <div class="meal-row"><div><div class="meal-time">13h00</div><div class="meal-name">Déjeuner</div></div><div class="meal-kcal">~650 kcal</div></div>
+      <div class="meal-row"><div><div class="meal-time">16h00</div><div class="meal-name">Collation</div></div><div class="meal-kcal">~420 kcal</div></div>
+      <div class="meal-row"><div><div class="meal-time">19h00</div><div class="meal-name">Serious Mass ½</div></div><span class="pill pill-green">Pre</span></div>
+      <div class="meal-row"><div><div class="meal-time">20h45</div><div class="meal-name">Banane</div></div><div class="meal-kcal">~100 kcal</div></div>
+      <div class="meal-row"><div><div class="meal-time">23h15</div><div class="meal-name">Serious Mass ½</div></div><span class="pill pill-green">Post</span></div>
+      <div class="meal-row"><div><div class="meal-time">00h00</div><div class="meal-name">Dîner</div></div><div class="meal-kcal">~700 kcal</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Suppléments</div>
+      <div class="suppl-row"><span class="meal-name">Serious Mass</span><span class="pill pill-green">2 × ½ dose / jour</span></div>
+      <div class="suppl-row"><span class="meal-name">Créatine monohydrate</span><span class="pill pill-amber">5g / jour</span></div>
+      <div class="suppl-row"><span class="meal-name">Eau</span><span style="font-size:14px;color:var(--text2)">3L minimum</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ RÈGLES ══ -->
+<div id="page-regles" class="page">
+  <div class="page-header">
+    <div class="page-title">Règles</div>
+    <div class="page-subtitle">Protocoles & alertes</div>
+  </div>
+  <div class="scroll-content">
+    <div class="card">
+      <div class="card-label">Règles d'or</div>
+      <div class="rule-row"><span class="rule-num">01</span><span class="rule-text">L'épaule prime sur tout. Protocole coiffe = intouchable. Validation kiné avant S10.</span></div>
+      <div class="rule-row"><span class="rule-num">02</span><span class="rule-text">La séance épaules du mardi ne se saute jamais. C'est ton chantier principal.</span></div>
+      <div class="rule-row"><span class="rule-num">03</span><span class="rule-text">Semelle compensatrice 1,3 cm obligatoire en salle dès S1.</span></div>
+      <div class="rule-row"><span class="rule-num">04</span><span class="rule-text">Les 2 shakes Serious Mass sont non négociables. Ta béquille contre ta tendance à sous-manger.</span></div>
+      <div class="rule-row"><span class="rule-num">05</span><span class="rule-text">Photo chaque vendredi. Quand t'as envie d'arrêter — tu regardes la progression.</span></div>
+      <div class="rule-row"><span class="rule-num">06</span><span class="rule-text">Samedi = repos absolu. Match dimanche 9h — c'est non négociable.</span></div>
+      <div class="rule-row"><span class="rule-num">07</span><span class="rule-text">Lundi = jamais de jambes. Lendemain de match toujours.</span></div>
+      <div class="rule-row"><span class="rule-num">08</span><span class="rule-text">8h de sommeil. C'est là que tu grossis, pas en salle.</span></div>
+      <div class="rule-row"><span class="rule-num">09</span><span class="rule-text">Informer la kiné de la scoliose 17°/15° et de l'inégalité de membres dès le prochain RDV.</span></div>
+      <div class="rule-row"><span class="rule-num">10</span><span class="rule-text">Créatine 5g/jour avec le shake post-séance. Pas plus, pas moins.</span></div>
+    </div>
+    <div class="card" style="border-color:rgba(255,77,77,0.25)">
+      <div class="card-label" style="color:var(--red)">Alertes importantes</div>
+      <div class="alert-row"><span class="alert-icon">🔴</span><span class="alert-text">Si EVA épaule > 3 → stop exercices poussée ce jour immédiatement.</span></div>
+      <div class="alert-row"><span class="alert-icon">🔴</span><span class="alert-text">Si prise < 0,4 kg/semaine → +150 kcal glucides (riz ou pâtes).</span></div>
+      <div class="alert-row"><span class="alert-icon">🟡</span><span class="alert-text">Validation kiné obligatoire avant de passer en Phase 3 (S10).</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAV ══ -->
+<nav class="nav-bar">
+  <div class="nav-item active" onclick="showPage('dashboard',this)">
+    <div class="nav-icon">🏠</div><span>Accueil</span>
+  </div>
+  <div class="nav-item" onclick="showPage('poids',this)">
+    <div class="nav-icon">⚖️</div><span>Poids</span>
+  </div>
+  <div class="nav-item" onclick="showPage('programme',this)">
+    <div class="nav-icon">💪</div><span>Programme</span>
+  </div>
+  <div class="nav-item" onclick="showPage('nutrition',this)">
+    <div class="nav-icon">🥗</div><span>Nutrition</span>
+  </div>
+  <div class="nav-item" onclick="showPage('regles',this)">
+    <div class="nav-icon">📋</div><span>Règles</span>
+  </div>
+</nav>
+
+<!-- ══ TIMER OVERLAY ══ -->
+<div class="timer-overlay" id="timer-overlay" onclick="closeTimerOverlay(event)">
+  <div class="timer-box">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:16px;text-transform:uppercase;letter-spacing:.08em;font-weight:600">Repos</div>
+    <div class="timer-circle">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+        <circle id="timer-arc" cx="80" cy="80" r="70" fill="none" stroke="#00E5A0" stroke-width="8" stroke-linecap="round"
+          stroke-dasharray="439.8" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-num" id="timer-num">--</div>
+    </div>
+    <div class="timer-label" id="timer-label">Prêt</div>
+    <div class="timer-actions">
+      <button class="timer-btn-big timer-start" id="timer-toggle" onclick="toggleTimer()">Démarrer</button>
+      <button class="timer-btn-big timer-cancel" onclick="cancelTimer()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL COIFFE ══ -->
+<div class="modal-overlay" id="coiffe-modal" onclick="closeCoiffe(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Protocole Coiffe</div>
+    <div class="modal-sub">En 1er à chaque séance. Ne jamais sauter. Objectif : stabiliser la tête humérale avant tout effort.</div>
+    <div class="coiffe-exo"><div class="coiffe-exo-name">1. Rotation externe — câble bas</div><div class="coiffe-exo-detail">3 × 15/côté · 30s repos · Coude collé au corps, rotation lente vers l'extérieur. Charge légère.</div></div>
+    <div class="coiffe-exo"><div class="coiffe-exo-name">2. Rotation interne — câble bas</div><div class="coiffe-exo-detail">3 × 15/côté · 30s repos · Même principe, rotation vers l'intérieur. Amplitude complète.</div></div>
+    <div class="coiffe-exo"><div class="coiffe-exo-name">3. Élévation en Y — haltères légers</div><div class="coiffe-exo-detail">3 × 12 · 30s repos · Penché à 45°, bras en Y vers le haut. Sollicite le sus-épineux.</div></div>
+    <div class="coiffe-exo" id="coiffe-extra1"><div class="coiffe-exo-name">4. Face pull léger — corde poulie haute</div><div class="coiffe-exo-detail">3 × 15 · 30s repos · Tirer vers le visage en ouvrant les coudes. <em>(Protocole complet)</em></div></div>
+    <div class="coiffe-exo" id="coiffe-extra2"><div class="coiffe-exo-name">5. Shrug contrôlé — haltères</div><div class="coiffe-exo-detail">2 × 12 · 30s repos · Haussement lent et contrôlé. Activation trapèze inférieur. <em>(Protocole complet)</em></div></div>
+    <button class="modal-close" onclick="document.getElementById('coiffe-modal').classList.remove('open')">Fermer</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const START=new Date('2026-03-20'), END=new Date('2026-08-05');
+const START_KG=54, TARGET_KG=63;
+let weightLog=JSON.parse(localStorage.getItem('elias_weights')||'[]');
+let photoData=JSON.parse(localStorage.getItem('elias_photos')||'{}');
+let currentPhotoWeek=null, chartInstance=null;
+
+// ── NAVIGATION ──
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  if(id==='dashboard'){renderChart();renderTodaySeance();renderPoidsAlert();}
+  if(id==='programme'){updateVolume();renderChargeList();}
+}
+function toggleSeance(el){el.classList.toggle('open')}
+
+// ── SEMAINE / PHASE ──
+function getWeek(){return Math.max(1,Math.min(19,Math.floor((new Date()-START)/(7*24*60*60*1000))+1))}
+function getPhase(w){
+  if(w<=4)return{tag:'Phase 1',name:'Fondation',desc:'Réhabilitation épaule, activation jambes, technique pure. Pas de charges lourdes.'};
+  if(w<=9)return{tag:'Phase 2',name:'Accumulation',desc:'Volume croissant. Spécialisation épaules. +1 série par exercice progressivement.'};
+  if(w<=14)return{tag:'Phase 3',name:'Intensification',desc:'Charges maximales. Développé haltères autorisé si kiné valide. Cluster sets jambes.'};
+  if(w<=18)return{tag:'Phase 4',name:'Peak',desc:'Surcharge finale. Drop sets épaules + jambes. Photo hebdomadaire obligatoire.'};
+  return{tag:'S19',name:'Déload',desc:'-40% volume, -20% charges. Sauna tous les soirs. Nutrition identique. Plage le 5 août.'};
+}
+
+// ── VOLUME DYNAMIQUE PAR SEMAINE ──
+// Phase 1 (S1-4): base. Phase 2 (S5-9): +1 série/semaine. Phase 3+: max.
+function getExtraSeries(week){
+  if(week<=4)return 0;
+  if(week<=9)return Math.min(week-4,5);
+  return 5;
+}
+function updateVolume(){
+  const w=getWeek(), extra=getExtraSeries(w);
+  // Bases: lundi traction=4, tirage=3, pull=3, curl bb=3, curl inc=3
+  // mardi: elev bilat=4, elev unilat=3, front=3, reverse=3, dips=3, push=3, ext=3
+  const base={lundi:[4,3,3,3,3],mardi:[4,3,3,3,3,3,3],jeudi:[4,4,3,3],ven:[4,3,3,3,3,3,3]};
+  const ids={lundi:['v-lundi-1','v-lundi-2','v-lundi-3','v-lundi-4','v-lundi-5'],
+             mardi:['v-mardi-1','v-mardi-2','v-mardi-3','v-mardi-4','v-mardi-5','v-mardi-6','v-mardi-7'],
+             jeudi:['v-jeudi-1','v-jeudi-2','v-jeudi-3','v-jeudi-4'],
+             ven:['v-ven-1','v-ven-2','v-ven-3','v-ven-4','v-ven-5','v-ven-6','v-ven-7']};
+  Object.keys(base).forEach(day=>{
+    base[day].forEach((b,i)=>{
+      const el=document.getElementById(ids[day][i]);
+      if(el){const s=b+extra;el.textContent=s;if(extra>0)el.style.color='var(--accent)';}
+    });
+  });
+  const phase=getPhase(w);
+  document.getElementById('prog-phase-label').textContent=phase.tag+' — '+phase.name;
+  const msgs=['Phase 1 : volume de base. Technique avant tout.',
+    'Phase 2 : +1 série/exercice par semaine. Tu es à S'+w+' — +'+extra+' série'+(extra>1?'s':'')+'.',
+    'Phase 3 : volume maximum atteint. Charge et intensité en priorité.',
+    'Phase 4 : Peak. Surcharge maximale. Drop sets autorisés.',
+    'S19 — Déload : -40% volume.'];
+  const msgIdx=w<=4?0:w<=9?1:w<=14?2:w<=18?3:4;
+  document.getElementById('vol-info').innerHTML=`<span style="color:var(--text)">${msgs[msgIdx]}</span>`;
+}
+
+// ── DASHBOARD ──
+function updateDashboard(){
+  const now=new Date();
+  document.getElementById('countdown-days').textContent=Math.max(0,Math.ceil((END-now)/(24*60*60*1000)));
+  const week=getWeek();
+  document.getElementById('dash-week-label').textContent='S'+week+' / S19';
+  const phase=getPhase(week);
+  document.getElementById('phase-tag').textContent=phase.tag;
+  document.getElementById('phase-name').textContent=phase.name;
+  document.getElementById('phase-desc').textContent=phase.desc;
+
+  const hasData=weightLog.length>0;
+  document.getElementById('empty-state').style.display=hasData?'none':'block';
+  document.getElementById('metric-grid').style.opacity=hasData?'1':'0.35';
+  document.getElementById('graph-card').style.display=hasData&&weightLog.length>1?'block':'none';
+
+  const last=hasData?weightLog[weightLog.length-1].kg:START_KG;
+  const pct=Math.min(100,Math.max(0,((last-START_KG)/(TARGET_KG-START_KG))*100));
+  document.getElementById('main-progress').style.width=pct.toFixed(1)+'%';
+  document.getElementById('current-display').textContent=hasData?last.toFixed(1)+' kg':'-- kg';
+  document.getElementById('dash-poids').textContent=hasData?last.toFixed(1):'--';
+  document.getElementById('dash-reste').textContent=hasData?Math.max(0,TARGET_KG-last).toFixed(1):'--';
+  document.getElementById('progress-pct').textContent=hasData?pct.toFixed(0)+"% de l'objectif":'Enregistre ton premier poids';
+
+  // IMC
+  if(hasData){
+    const imc=last/(1.75*1.75);
+    const imcEl=document.getElementById('dash-imc');
+    imcEl.textContent=imc.toFixed(1);
+    imcEl.className='m-val '+(imc<18?'imc-rouge':imc<=20?'imc-bleu':'imc-vert');
+    document.getElementById('dash-imc-label').textContent=imc<18?'Trop maigre':imc<=20?'Maigre':'Normal';
+  }
+
+  // Rythme cible vs réel
+  const rythmeEl=document.getElementById('rythme-badge');
+  if(weightLog.length>=2){
+    const weeksElapsed=Math.max(1,(new Date()-START)/(7*24*60*60*1000));
+    const gained=weightLog[weightLog.length-1].kg-START_KG;
+    const rythme=gained/weeksElapsed;
+    const targetKgToDate=Math.min(START_KG+0.47*weeksElapsed,TARGET_KG);
+    const diff=last-targetKgToDate;
+    let cls,txt;
+    if(diff>=-0.2){cls='rythme-ok';txt='✓ Rythme bon ('+rythme.toFixed(2)+' kg/sem)';}
+    else if(diff>=-1){cls='rythme-slow';txt='⚡ Légèrement en retard ('+rythme.toFixed(2)+' kg/sem)';}
+    else{cls='rythme-warn';txt='⚠ En retard — +150 kcal glucides';}
+    rythmeEl.innerHTML=`<span class="rythme-badge ${cls}">${txt}</span>`;
+  } else {
+    rythmeEl.innerHTML='';
+  }
+
+  // Planning
+  const planning=[
+    {day:'Lundi',label:'Dos + Biceps',type:'salle'},
+    {day:'Mardi',label:'Épaules + Triceps',type:'priorite'},
+    {day:'Mercredi',label:'Five',type:'foot'},
+    {day:'Jeudi',label:'Jambes Quad',type:'salle'},
+    {day:'Vendredi',label:'Épaules + Triceps',type:'priorite'},
+    {day:'Samedi',label:'Repos absolu',type:'repos'},
+    {day:'Dimanche',label:'Match 9h00',type:'foot'},
+  ];
+  const dayNames=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  const todayName=dayNames[(now.getDay()+6)%7];
+  document.getElementById('planning-semaine').innerHTML=planning.map(p=>{
+    const isToday=p.day===todayName;
+    return`<div class="planning-row">
+      <span class="planning-day ${isToday?'today':''}">${isToday?'<span class="today-dot"></span>':''}${p.day}</span>
+      <span class="planning-badge badge-${p.type}">${p.label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── GRAPHIQUE ──
+function renderChart(){
+  if(weightLog.length<2)return;
+  const canvas=document.getElementById('weightChart');
+  if(!canvas)return;
+  if(chartInstance){chartInstance.destroy();}
+
+  const labels=weightLog.map(e=>e.date);
+  const data=weightLog.map(e=>e.kg);
+
+  // Ligne cible
+  const totalWeeks=19;
+  const targetData=weightLog.map(e=>{
+    const d=new Date(e.ts||Date.now());
+    const w=Math.max(0,(d-START)/(7*24*60*60*1000));
+    return Math.min(START_KG+0.47*w,TARGET_KG);
+  });
+
+  chartInstance=new Chart(canvas,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'Poids réel',data,borderColor:'#00E5A0',borderWidth:2.5,pointBackgroundColor:'#00E5A0',pointRadius:4,pointHoverRadius:6,fill:true,backgroundColor:'rgba(0,229,160,0.07)',tension:0.4},
+        {label:'Cible',data:targetData,borderColor:'rgba(255,200,50,0.5)',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false,tension:0.4}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,position:'top',labels:{color:'rgba(242,242,242,0.4)',font:{size:10},boxWidth:12,padding:12}},
+        tooltip:{backgroundColor:'#2a2a2a',titleColor:'#f2f2f2',bodyColor:'#00E5A0',borderColor:'rgba(0,229,160,0.3)',borderWidth:1,padding:10,callbacks:{label:ctx=>ctx.parsed.y.toFixed(1)+' kg'}}
+      },
+      scales:{
+        x:{display:false},
+        y:{min:Math.min(...data,START_KG)-0.3,max:TARGET_KG+0.5,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(242,242,242,0.3)',font:{size:10},callback:v=>v+' kg'},border:{display:false}}
+      }
+    }
+  });
+}
+
+// ── POIDS ──
+function logPoids(){
+  const val=parseFloat(document.getElementById('poids-input').value);
+  if(!val||val<50||val>80){showToast('Poids invalide (50–80 kg)');return;}
+  weightLog.push({kg:val,date:new Date().toLocaleDateString('fr-FR'),ts:Date.now()});
+  localStorage.setItem('elias_weights',JSON.stringify(weightLog));
+  document.getElementById('poids-input').value='';
+  renderWeightLog();updateDashboard();renderChart();showToast('Enregistré ✓');
+}
+function clearWeights(){
+  if(!confirm("Supprimer tout l'historique ?"))return;
+  weightLog=[];localStorage.removeItem('elias_weights');
+  renderWeightLog();updateDashboard();
+  if(chartInstance){chartInstance.destroy();chartInstance=null;}
+}
+function renderWeightLog(){
+  const el=document.getElementById('weight-log');
+  if(!weightLog.length){el.innerHTML='<div style="color:var(--text3);font-size:14px;text-align:center;padding:20px 0">Aucune entrée encore</div>';return;}
+  const sorted=[...weightLog].reverse();
+  el.innerHTML=sorted.map((e,i)=>{
+    const prev=sorted[i+1];
+    let delta='';
+    if(prev){const d=e.kg-prev.kg;delta=`<span class="log-delta ${d>=0?'delta-up':'delta-down'}">${d>=0?'+':''}${d.toFixed(1)}</span>`;}
+    return`<div class="log-item"><div class="log-date">${e.date}</div><div style="display:flex;align-items:center;gap:10px">${delta}<span class="log-kg">${e.kg.toFixed(1)} kg</span></div></div>`;
+  }).join('');
+}
+
+// ── PHOTOS ──
+function renderPhotoGrid(){
+  const weeks=Array.from({length:10},(_,i)=>'S'+(i+1));
+  document.getElementById('photo-grid').innerHTML=weeks.map(w=>{
+    const p=photoData[w];
+    if(p)return`<div class="photo-slot"><img src="${p}" alt="${w}"><div class="slot-overlay"><span class="slot-week">${w}</span></div><button class="del-btn" onclick="deletePhoto('${w}',event)">✕</button></div>`;
+    return`<div class="photo-slot" onclick="openPhotoInput('${w}')"><span class="slot-plus">+</span><span class="slot-label">${w}</span></div>`;
+  }).join('');
+}
+function openPhotoInput(w){currentPhotoWeek=w;document.getElementById('photo-input').click();}
+function handlePhoto(e){
+  const file=e.target.files[0];if(!file||!currentPhotoWeek)return;
+  const r=new FileReader();
+  r.onload=ev=>{photoData[currentPhotoWeek]=ev.target.result;localStorage.setItem('elias_photos',JSON.stringify(photoData));renderPhotoGrid();showToast('Photo '+currentPhotoWeek+' sauvegardée ✓');};
+  r.readAsDataURL(file);e.target.value='';
+}
+function deletePhoto(w,e){
+  e.stopPropagation();if(!confirm('Supprimer la photo '+w+' ?'))return;
+  delete photoData[w];localStorage.setItem('elias_photos',JSON.stringify(photoData));renderPhotoGrid();
+}
+
+// ── TIMER ──
+let timerTotal=0,timerLeft=0,timerRunning=false,timerInterval=null;
+const CIRC=439.8;
+function startTimer(secs){
+  timerTotal=secs;timerLeft=secs;timerRunning=false;
+  document.getElementById('timer-overlay').classList.add('open');
+  document.getElementById('timer-num').textContent=secs;
+  document.getElementById('timer-label').textContent='Prêt · '+secs+'s';
+  document.getElementById('timer-toggle').textContent='Démarrer';
+  document.getElementById('timer-arc').style.strokeDashoffset=0;
+  clearInterval(timerInterval);
+}
+function toggleTimer(){
+  if(!timerRunning){
+    timerRunning=true;
+    document.getElementById('timer-toggle').textContent='Pause';
+    timerInterval=setInterval(()=>{
+      timerLeft--;
+      const pct=timerLeft/timerTotal;
+      document.getElementById('timer-num').textContent=timerLeft;
+      document.getElementById('timer-label').textContent=timerLeft>0?'Repos en cours…':'C\'est parti ! 💪';
+      document.getElementById('timer-arc').style.strokeDashoffset=CIRC*(1-pct);
+      if(timerLeft<=0){clearInterval(timerInterval);timerRunning=false;document.getElementById('timer-toggle').textContent='Relancer';showToast('Repos terminé 💪');}
+    },1000);
+  } else {
+    timerRunning=false;clearInterval(timerInterval);
+    document.getElementById('timer-toggle').textContent='Reprendre';
+  }
+}
+function cancelTimer(){clearInterval(timerInterval);timerRunning=false;document.getElementById('timer-overlay').classList.remove('open');}
+function closeTimerOverlay(e){if(e.target===document.getElementById('timer-overlay'))cancelTimer();}
+
+// ── NUTRITION TRACKER ──
+const CHECKS=[
+  {id:'shake1',label:'Serious Mass pre-séance (19h)'},
+  {id:'shake2',label:'Serious Mass post-séance (23h15)'},
+  {id:'creatine',label:'Créatine 5g avec le shake'},
+  {id:'eau',label:'3L d\'eau minimum'},
+  {id:'repas',label:'Tous les repas pris'},
+  {id:'sommeil',label:'Coucher avant minuit'},
+];
+function todayKey(){return'checks_'+new Date().toLocaleDateString('fr-FR').replace(/\//g,'-')}
+function loadChecks(){return JSON.parse(localStorage.getItem(todayKey())||'{}')}
+function saveChecks(c){localStorage.setItem(todayKey(),JSON.stringify(c))}
+function renderChecks(){
+  const checks=loadChecks();
+  const today=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('nutrition-date').textContent=today.charAt(0).toUpperCase()+today.slice(1);
+  document.getElementById('check-grid').innerHTML=CHECKS.map(c=>`
+    <div class="check-item ${checks[c.id]?'done':''}" onclick="toggleCheck('${c.id}')">
+      <div class="ci-top"><div class="ci-check">${checks[c.id]?'✓':''}</div></div>
+      <div class="ci-label">${c.label}</div>
+    </div>`).join('');
+  document.getElementById('streak-num').textContent=calcStreak();
+}
+function toggleCheck(id){
+  const checks=loadChecks();checks[id]=!checks[id];saveChecks(checks);
+  if(CHECKS.every(c=>checks[c.id]))showToast('Journée parfaite 🔥');
+  renderChecks();
+}
+function resetChecks(){localStorage.removeItem(todayKey());renderChecks();}
+function calcStreak(){
+  let streak=0;const today=new Date();
+  for(let i=0;i<60;i++){
+    const d=new Date(today);d.setDate(d.getDate()-i);
+    const key='checks_'+d.toLocaleDateString('fr-FR').replace(/\//g,'-');
+    const c=JSON.parse(localStorage.getItem(key)||'{}');
+    if(CHECKS.every(ch=>c[ch.id]))streak++;else if(i>0)break;
+  }
+  return streak;
+}
+
+// ── SÉANCE DU JOUR ──
+const PLANNING_DATA=[
+  {day:'Lundi',   name:'Dos + Biceps',     type:'salle',   note:'Lendemain de match — jambes interdites'},
+  {day:'Mardi',   name:'Épaules + Triceps',type:'priorite',note:'Séance prioritaire — jamais sautée'},
+  {day:'Mercredi',name:'Five',             type:'foot',    note:'1h–1h30 de five. Serious Mass avant/après.'},
+  {day:'Jeudi',   name:'Jambes Quad',      type:'salle',   note:'Goblet squat, presse, leg ext, fentes'},
+  {day:'Vendredi',name:'Épaules + Triceps',type:'priorite',note:'Focus épaules — 2ème séance de la semaine'},
+  {day:'Samedi',  name:'Repos absolu',     type:'repos',   note:'Veille de match. Coucher avant minuit.'},
+  {day:'Dimanche',name:'Match 9h00',       type:'foot',    note:'Lever 7h. Repas 7h15. Serious Mass après.'},
+];
+function renderTodaySeance(){
+  const dayNames=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  const todayName=dayNames[(new Date().getDay()+6)%7];
+  const s=PLANNING_DATA.find(p=>p.day===todayName);
+  const el=document.getElementById('today-seance-card');
+  if(!s){el.innerHTML='';return;}
+  if(s.type==='repos'||s.type==='foot'){
+    el.innerHTML=`<div class="repos-card"><span class="repos-emoji">${s.type==='repos'?'😴':'⚽'}</span><div><div style="font-size:14px;font-weight:600;margin-bottom:2px">${s.name}</div><div class="repos-text">${s.note}</div></div></div>`;
+  } else {
+    const colors={salle:'var(--blue)',priorite:'var(--accent)'};
+    el.innerHTML=`<div class="today-seance" onclick="showPage('programme',document.querySelectorAll('.nav-item')[2])">
+      <div class="today-seance-left">
+        <div class="today-seance-label">Séance du jour — ${todayName}</div>
+        <div class="today-seance-name" style="color:${colors[s.type]||'var(--text)'}">${s.name}</div>
+        <div class="today-seance-sub">${s.note}</div>
+      </div>
+      <div class="today-seance-arrow">›</div>
+    </div>`;
+  }
+}
+
+// ── ALERTE POIDS NON LOGGÉ ──
+function renderPoidsAlert(){
+  const el=document.getElementById('poids-alert-card');
+  if(!weightLog.length){el.innerHTML='';return;}
+  const last=new Date(weightLog[weightLog.length-1].ts||Date.now());
+  const hoursSince=(Date.now()-last.getTime())/(1000*60*60);
+  if(hoursSince>30){
+    el.innerHTML=`<div class="poids-alert" onclick="showPage('poids',document.querySelectorAll('.nav-item')[1])">
+      <div class="poids-alert-dot"></div>
+      <span>Tu n'as pas pesé depuis ${Math.floor(hoursSince)}h — Logger mon poids →</span>
+    </div>`;
+  } else {
+    el.innerHTML='';
+  }
+}
+
+// ── EXPORT DONNÉES ──
+function exportData(){
+  const data={
+    exportDate:new Date().toLocaleDateString('fr-FR'),
+    poids:weightLog,
+    photos:'(non exportées — trop volumineuses)',
+    note:'Import possible en collant le JSON dans la console : localStorage.setItem("elias_weights", JSON.stringify(data.poids))'
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='lyou_backup_'+new Date().toLocaleDateString('fr-FR').replace(/\//g,'-')+'.json';
+  a.click();URL.revokeObjectURL(url);
+  showToast('Données exportées ✓');
+}
+
+// ── HISTORIQUE DE CHARGES PAR JOUR/SÉANCE ──
+const SEANCES={
+  Lundi:{
+    name:'Dos + Biceps',
+    exos:[
+      {id:'traction',   name:'Traction pronation'},
+      {id:'tirage',     name:'Tirage horizontal câble'},
+      {id:'pullover',   name:'Pull-over haltère'},
+      {id:'curl_bb',    name:'Curl barre droite'},
+      {id:'curl_inc',   name:'Curl incliné haltères'},
+    ]
+  },
+  Mardi:{
+    name:'Épaules + Triceps',
+    exos:[
+      {id:'elev_cable', name:'Élév. latérale câble bilat.'},
+      {id:'elev_halt',  name:'Élév. latérale haltère unilat.'},
+      {id:'elev_front', name:'Élév. frontale alterné'},
+      {id:'rev_fly',    name:'Reverse fly câble'},
+      {id:'dips',       name:'Dips poids de corps'},
+      {id:'pushdown',   name:'Pushdown câble corde'},
+      {id:'ext_ez',     name:'Extension couché EZ'},
+    ]
+  },
+  Mercredi:null,
+  Jeudi:{
+    name:'Jambes Quad',
+    exos:[
+      {id:'goblet',     name:'Goblet Squat haltère'},
+      {id:'presse',     name:'Presse à cuisses 45°'},
+      {id:'leg_ext',    name:'Leg Extension'},
+      {id:'fentes',     name:'Fentes marchées haltères'},
+      {id:'mollets',    name:'Élév. mollets debout'},
+    ]
+  },
+  Vendredi:{
+    name:'Épaules + Triceps',
+    exos:[
+      {id:'elev_cable2',name:'Élév. latérale câble bilat.'},
+      {id:'elev_halt2', name:'Élév. latérale haltère unilat.'},
+      {id:'rev_fly2',   name:'Reverse fly câble'},
+      {id:'face_pull',  name:'Face pull corde'},
+      {id:'pushdown2',  name:'Pushdown câble corde'},
+      {id:'ext_ez2',    name:'Extension couché EZ'},
+      {id:'dips2',      name:'Dips poids de corps'},
+    ]
+  },
+  Samedi:null,
+  Dimanche:null,
+};
+
+function dateKey(date){
+  return (date||new Date()).toLocaleDateString('fr-FR').replace(/\//g,'-');
+}
+function loadDayCharges(dateStr){
+  return JSON.parse(localStorage.getItem('charges_'+dateStr)||'{}');
+}
+function saveDayCharge(id,val,dateStr){
+  const c=loadDayCharges(dateStr);
+  c[id]=val;
+  localStorage.setItem('charges_'+dateStr,JSON.stringify(c));
+}
+
+// Trouve la dernière fois que cette séance a été faite (pour afficher la charge précédente)
+function getPrevCharges(dayName){
+  const dayNames=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  const today=new Date();
+  for(let i=1;i<=60;i++){
+    const d=new Date(today);d.setDate(d.getDate()-i);
+    const dName=dayNames[(d.getDay()+6)%7];
+    if(dName===dayName){
+      return{data:loadDayCharges(dateKey(d)),date:d.toLocaleDateString('fr-FR')};
+    }
+  }
+  return{data:{},date:null};
+}
+
+function renderChargeList(){
+  const dayNames=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  const todayName=dayNames[(new Date().getDay()+6)%7];
+  const seance=SEANCES[todayName];
+  const todayStr=dateKey();
+  const el=document.getElementById('charge-list');
+  const titleEl=document.getElementById('charge-title');
+  const subEl=document.getElementById('charge-subtitle');
+
+  if(!seance){
+    titleEl.textContent='Pas de séance aujourd\'hui';
+    subEl.textContent=todayName+' — Repos ou football';
+    el.innerHTML=`<div style="text-align:center;padding:20px 0;font-size:28px">
+      ${todayName==='Mercredi'||todayName==='Dimanche'?'⚽':'😴'}
+    </div>`;
+    return;
+  }
+
+  const todayCharges=loadDayCharges(todayStr);
+  const prev=getPrevCharges(todayName);
+
+  titleEl.textContent='Charges — '+todayName;
+  subEl.textContent=seance.name+(prev.date?' · Précédent : '+prev.date:'');
+
+  el.innerHTML=seance.exos.map(ex=>{
+    const val=todayCharges[ex.id]||'';
+    const prevVal=prev.data[ex.id];
+    const diff=val&&prevVal?parseFloat(val)-parseFloat(prevVal):null;
+    const prevHTML=prevVal
+      ?`<span style="font-size:11px;color:var(--text3);min-width:44px;text-align:right">${prevVal}kg</span>`
+      :`<span style="font-size:11px;color:var(--text3);min-width:44px;text-align:right">—</span>`;
+    const diffHTML=diff!==null
+      ?`<span style="font-size:10px;font-weight:700;min-width:32px;text-align:center;color:${diff>0?'var(--accent)':diff<0?'var(--red)':'var(--text3)'}">${diff>0?'+':''}${diff}</span>`
+      :`<span style="min-width:32px"></span>`;
+    return`<div class="charge-row">
+      <span class="charge-exo">${ex.name}</span>
+      ${prevHTML}
+      ${diffHTML}
+      <input class="charge-input" type="number" placeholder="—" step="0.5" min="0" value="${val}"
+        onchange="saveDayCharge('${ex.id}',this.value,'${todayStr}');renderChargeList()"
+        onclick="event.stopPropagation()" onfocus="this.select()">
+      <span class="charge-unit">kg</span>
+    </div>`;
+  }).join('');
+}
+
+function exportCharges(){
+  const keys=Object.keys(localStorage).filter(k=>k.startsWith('charges_'));
+  if(!keys.length){showToast('Aucune charge enregistrée');return;}
+  const result=keys.sort().map(k=>({date:k.replace('charges_','').replace(/-/g,'/'),charges:JSON.parse(localStorage.getItem(k))}));
+  const blob=new Blob([JSON.stringify(result,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='lyou_charges_'+dateKey()+'.json';
+  a.click();URL.revokeObjectURL(url);
+  showToast('Charges exportées ✓');
+}
+
+// ── COIFFE MODAL ──
+function openCoiffe(isComplet){
+  document.getElementById('coiffe-modal').classList.add('open');
+  document.getElementById('coiffe-extra1').style.display=isComplet?'block':'none';
+  document.getElementById('coiffe-extra2').style.display=isComplet?'block':'none';
+}
+function closeCoiffe(e){if(e.target===document.getElementById('coiffe-modal'))document.getElementById('coiffe-modal').classList.remove('open');}
+
+// ── TOAST ──
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ── INIT ──
+renderWeightLog();renderPhotoGrid();renderChecks();updateDashboard();updateVolume();renderTodaySeance();renderPoidsAlert();renderChargeList();
+</script>
+</body>
+</html>
